@@ -1,0 +1,1 @@
+"""Product-management application logic."""
