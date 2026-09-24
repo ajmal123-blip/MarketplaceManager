@@ -74,6 +74,29 @@ def _add_scheduler_metadata(connection: sqlite3.Connection) -> None:
     connection.execute("UPDATE scheduled_tasks SET next_run = scheduled_at WHERE next_run IS NULL AND enabled = 1")
 
 
+def _create_connections_tables(connection: sqlite3.Connection) -> None:
+    connection.execute("""CREATE TABLE IF NOT EXISTS connections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        connection_type TEXT NOT NULL,
+        endpoint TEXT NOT NULL DEFAULT '',
+        secret_ref TEXT NOT NULL DEFAULT '',
+        enabled INTEGER NOT NULL DEFAULT 1,
+        status TEXT NOT NULL DEFAULT 'Not tested',
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_tested TEXT,
+        message TEXT NOT NULL DEFAULT ''
+    )""")
+    connection.execute("""CREATE TABLE IF NOT EXISTS connection_activity (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        connection_id INTEGER,
+        event TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        message TEXT NOT NULL DEFAULT '',
+        FOREIGN KEY(connection_id) REFERENCES connections(id) ON DELETE CASCADE
+    )""")
+
+
 MIGRATIONS: tuple[tuple[int, callable], ...] = (
     (1, _create_products_table),
     (2, _create_product_images_table),
@@ -81,6 +104,7 @@ MIGRATIONS: tuple[tuple[int, callable], ...] = (
     (4, _create_scheduled_tasks_tables),
     (5, _create_import_history_table),
     (6, _add_scheduler_metadata),
+    (7, _create_connections_tables),
 )
 
 
