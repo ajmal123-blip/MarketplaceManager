@@ -12,11 +12,12 @@ from marketplace_manager.ui.pages.images_page import ImagesPage
 from marketplace_manager.ui.pages.ai_writer_page import AIWriterPage
 from marketplace_manager.ui.pages.scheduler_page import SchedulerPage
 from marketplace_manager.ui.pages.settings_page import SettingsPage
+from marketplace_manager.ui.pages.imports_page import ImportsPage
 
 
 class MainWindow(QMainWindow):
     """Professional application shell for current and future modules."""
-    PAGE_NAMES = ("Dashboard", "Products", "Listings", "Images", "AI Writer", "Scheduler", "Settings")
+    PAGE_NAMES = ("Dashboard", "Products", "Listings", "Images", "AI Writer", "Scheduler", "Settings", "CSV / Excel")
 
     def __init__(self) -> None:
         super().__init__()
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(AIWriterPage())
         self.pages.addWidget(SchedulerPage())
         self.pages.addWidget(SettingsPage())
+        self.pages.addWidget(ImportsPage())
         layout.addWidget(self.sidebar); layout.addWidget(self.pages, 1); self.setCentralWidget(root)
         status = QStatusBar(); status.showMessage("Ready")
         version = QLabel(f"Version {__version__}"); status.addPermanentWidget(version); self.setStatusBar(status)

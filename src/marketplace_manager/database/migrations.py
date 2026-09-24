@@ -47,7 +47,27 @@ def _create_scheduled_tasks_tables(connection: sqlite3.Connection) -> None:
         executed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(task_id) REFERENCES scheduled_tasks(id) ON DELETE CASCADE)""")
 
 
-MIGRATIONS: tuple[tuple[int, callable], ...] = ((1, _create_products_table), (2, _create_product_images_table), (3, _create_listing_drafts_table), (4, _create_scheduled_tasks_tables))
+def _create_import_history_table(connection: sqlite3.Connection) -> None:
+    connection.execute("""CREATE TABLE IF NOT EXISTS import_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        imported_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        file_name TEXT NOT NULL,
+        file_type TEXT NOT NULL,
+        records INTEGER NOT NULL DEFAULT 0,
+        successful_records INTEGER NOT NULL DEFAULT 0,
+        failed_records INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL,
+        message TEXT NOT NULL DEFAULT ''
+    )""")
+
+
+MIGRATIONS: tuple[tuple[int, callable], ...] = (
+    (1, _create_products_table),
+    (2, _create_product_images_table),
+    (3, _create_listing_drafts_table),
+    (4, _create_scheduled_tasks_tables),
+    (5, _create_import_history_table),
+)
 
 
 def apply_migrations(connection: sqlite3.Connection) -> None:
