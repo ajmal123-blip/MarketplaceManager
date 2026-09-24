@@ -33,23 +33,53 @@ class ProductRepository:
         rows = self._connection.execute("SELECT * FROM products ORDER BY created_at DESC, id DESC").fetchall()
         return [self._row_to_product(row) for row in rows]
 
-    def list_filtered(self, search: str = "", status: str = "All") -> list[Product]:
-        """Return products matching a title, SKU, or category search and status."""
+    def list_filtered(
+        self,
+        search: str = "",
+        status: str = "All",
+        category: str = "All",
+        condition: str = "All",
+    ) -> list[Product]:
+        """Return products matching the supplied search, status, category, and condition filters."""
         clauses: list[str] = []
         values: list[str] = []
         if search.strip():
-            clauses.append("(title LIKE ? OR sku LIKE ? OR category LIKE ?)")
+            clauses.append("(title LIKE ? OR sku LIKE ? OR category LIKE ? OR description LIKE ?)")
             term = f"%{search.strip()}%"
-            values.extend([term, term, term])
+            values.extend([term, term, term, term])
         if status != "All":
             clauses.append("status = ?")
             values.append(status)
+        if category != "All":
+            clauses.append("category = ?")
+            values.append(category)
+        if condition != "All":
+            clauses.append("condition = ?")
+            values.append(condition)
         statement = "SELECT * FROM products"
         if clauses:
             statement += " WHERE " + " AND ".join(clauses)
         statement += " ORDER BY created_at DESC, id DESC"
         rows = self._connection.execute(statement, values).fetchall()
         return [self._row_to_product(row) for row in rows]
+
+    def list_categories(self) -> list[str]:
+        rows = self._connection.execute("SELECT DISTINCT category FROM products WHERE category != '' ORDER BY category ASC").fetchall()
+        return [row[0] for row in rows]
+
+    def list_conditions(self) -> list[str]:
+        rows = self._connection.execute("SELECT DISTINCT condition FROM products WHERE condition != '' ORDER BY condition ASC").fetchall()
+        return [row[0] for row in rows]
+
+    def counts_by_status(self) -> dict[str, int]:
+        total = self._connection.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        rows = self._connection.execute("SELECT status, COUNT(*) AS count FROM products GROUP BY status").fetchall()
+        counts = {"total": total, "draft": 0, "active": 0, "archived": 0}
+        for row in rows:
+            status = str(row[0]).lower()
+            if status in counts:
+                counts[status] = int(row[1])
+        return counts
 
     def update(self, product: Product) -> Product | None:
         if product.id is None:

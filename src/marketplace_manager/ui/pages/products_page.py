@@ -15,12 +15,15 @@ class ProductsPage(QWidget):
         super().__init__(); self._connection = initialize_database(); self._repository = ProductRepository(self._connection)
         layout = QVBoxLayout(self); layout.setContentsMargins(36, 32, 36, 32); layout.setSpacing(16)
         page_header(layout, "Products", "Manage your local product catalog.")
-        controls = QHBoxLayout(); self.search = QLineEdit(); self.search.setPlaceholderText("Search title, SKU, or category...")
-        self.status_filter = QComboBox(); self.status_filter.addItems(["All", "draft", "active", "archived"])
+        controls = QHBoxLayout(); self.search = QLineEdit(); self.search.setPlaceholderText("Search title, SKU, category, or description...")
+        self.category_filter = QComboBox(); self.condition_filter = QComboBox(); self.status_filter = QComboBox()
+        self.category_filter.setPlaceholderText("Category")
+        self.condition_filter.setPlaceholderText("Condition")
+        self.status_filter.addItems(["All", "draft", "active", "archived"])
         add = QPushButton("Add Product"); edit = QPushButton("Edit"); delete = QPushButton("Delete"); refresh = QPushButton("Refresh"); importer=QPushButton("Import"); exporter=QPushButton("Export")
-        controls.addWidget(self.search, 1); controls.addWidget(self.status_filter); controls.addWidget(importer); controls.addWidget(exporter); controls.addWidget(add); controls.addWidget(edit); controls.addWidget(delete); controls.addWidget(refresh); layout.addLayout(controls)
+        controls.addWidget(self.search, 1); controls.addWidget(self.category_filter); controls.addWidget(self.condition_filter); controls.addWidget(self.status_filter); controls.addWidget(importer); controls.addWidget(exporter); controls.addWidget(add); controls.addWidget(edit); controls.addWidget(delete); controls.addWidget(refresh); layout.addLayout(controls)
         self.table = QTableWidget(0, 6); self.table.setHorizontalHeaderLabels(["Title", "Price", "Category", "Condition", "SKU", "Status"]); self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows); self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers); self.table.horizontalHeader().setStretchLastSection(True); layout.addWidget(self.table, 1)
-        self.search.textChanged.connect(self.refresh); self.status_filter.currentTextChanged.connect(self.refresh); add.clicked.connect(self.add_product); edit.clicked.connect(self.edit_product); delete.clicked.connect(self.delete_product); refresh.clicked.connect(self.refresh); importer.clicked.connect(self.import_products); exporter.clicked.connect(self.export_products); self.table.itemDoubleClicked.connect(lambda _: self.edit_product()); self.refresh()
+        self.search.textChanged.connect(self.refresh); self.category_filter.currentTextChanged.connect(self.refresh); self.condition_filter.currentTextChanged.connect(self.refresh); self.status_filter.currentTextChanged.connect(self.refresh); add.clicked.connect(self.add_product); edit.clicked.connect(self.edit_product); delete.clicked.connect(self.delete_product); refresh.clicked.connect(self.refresh); importer.clicked.connect(self.import_products); exporter.clicked.connect(self.export_products); self.table.itemDoubleClicked.connect(lambda _: self.edit_product()); self._refresh_filters(); self.refresh()
 
     def import_products(self) -> None:
         filename,_=QFileDialog.getOpenFileName(self,"Import products","","Product files (*.csv *.xlsx)")
@@ -41,9 +44,32 @@ class ProductsPage(QWidget):
         try: export_products(__import__("pathlib").Path(filename),self._repository.list_all()); QMessageBox.information(self,"Export complete","Products were exported successfully.")
         except (ValueError, OSError) as error: QMessageBox.critical(self,"Export error",str(error))
 
+    def _refresh_filters(self) -> None:
+        categories = ["All", *self._repository.list_categories()]
+        conditions = ["All", *self._repository.list_conditions()]
+        self.category_filter.blockSignals(True)
+        self.condition_filter.blockSignals(True)
+        current_category = self.category_filter.currentText() if self.category_filter.count() else "All"
+        current_condition = self.condition_filter.currentText() if self.condition_filter.count() else "All"
+        self.category_filter.clear(); self.category_filter.addItems(categories)
+        self.condition_filter.clear(); self.condition_filter.addItems(conditions)
+        if current_category in categories: self.category_filter.setCurrentText(current_category)
+        else: self.category_filter.setCurrentIndex(0)
+        if current_condition in conditions: self.condition_filter.setCurrentText(current_condition)
+        else: self.condition_filter.setCurrentIndex(0)
+        self.category_filter.blockSignals(False)
+        self.condition_filter.blockSignals(False)
+
     def refresh(self) -> None:
         try:
-            products = self._repository.list_filtered(self.search.text(), self.status_filter.currentText()); self.table.setRowCount(len(products))
+            self._refresh_filters()
+            products = self._repository.list_filtered(
+                self.search.text(),
+                self.status_filter.currentText(),
+                self.category_filter.currentText(),
+                self.condition_filter.currentText(),
+            )
+            self.table.setRowCount(len(products))
             for row, product in enumerate(products):
                 values = (product.title, f"{product.price:.2f}", product.category, product.condition, product.sku, product.status)
                 for column, value in enumerate(values): self.table.setItem(row, column, QTableWidgetItem(value))
