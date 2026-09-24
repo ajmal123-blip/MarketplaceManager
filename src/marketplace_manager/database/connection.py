@@ -9,7 +9,8 @@ def create_connection(database_path: Path | str) -> sqlite3.Connection:
     if database_path != ":memory:":
         database_path = Path(database_path)
         database_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(database_path)
+    # Scheduler workers share the application connection under service locks.
+    connection = sqlite3.connect(database_path, check_same_thread=False)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     return connection

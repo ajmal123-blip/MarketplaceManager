@@ -61,12 +61,26 @@ def _create_import_history_table(connection: sqlite3.Connection) -> None:
     )""")
 
 
+def _add_scheduler_metadata(connection: sqlite3.Connection) -> None:
+    """Add task name and run metadata to scheduler tables from Phase 3."""
+    columns = {row[1] for row in connection.execute("PRAGMA table_info(scheduled_tasks)")}
+    if "task_name" not in columns:
+        connection.execute("ALTER TABLE scheduled_tasks ADD COLUMN task_name TEXT NOT NULL DEFAULT ''")
+    if "last_run" not in columns:
+        connection.execute("ALTER TABLE scheduled_tasks ADD COLUMN last_run TEXT")
+    if "next_run" not in columns:
+        connection.execute("ALTER TABLE scheduled_tasks ADD COLUMN next_run TEXT")
+    connection.execute("UPDATE scheduled_tasks SET task_name = task_type WHERE task_name = ''")
+    connection.execute("UPDATE scheduled_tasks SET next_run = scheduled_at WHERE next_run IS NULL AND enabled = 1")
+
+
 MIGRATIONS: tuple[tuple[int, callable], ...] = (
     (1, _create_products_table),
     (2, _create_product_images_table),
     (3, _create_listing_drafts_table),
     (4, _create_scheduled_tasks_tables),
     (5, _create_import_history_table),
+    (6, _add_scheduler_metadata),
 )
 
 

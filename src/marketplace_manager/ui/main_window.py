@@ -54,6 +54,15 @@ class MainWindow(QMainWindow):
             logging.getLogger(__name__).exception("Unable to change page")
             self.statusBar().showMessage("Unable to open the requested page")
 
+    def closeEvent(self, event) -> None:
+        """Shut down page-owned workers before closing the application."""
+        for index in range(self.pages.count()):
+            page = self.pages.widget(index)
+            shutdown = getattr(page, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
+        super().closeEvent(event)
+
     def _apply_style(self) -> None:
         self.setStyleSheet("""
             QMainWindow, #appRoot { background: #f7f8fc; color: #172033; }
