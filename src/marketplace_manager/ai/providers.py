@@ -13,10 +13,14 @@ class AIServiceUnavailableError(RuntimeError):
     pass
 
 
+class AIProviderError(RuntimeError):
+    """Safe provider failure that can be shown without exposing configuration."""
+
+
 class UnavailableProvider:
     def generate_listing(self, request: ListingRequest) -> ListingResult:
         raise AIServiceUnavailableError(
-            "AI service is not configured. Set AI_PROVIDER in your local environment configuration."
+            "AI service is not configured. Select the local mock provider or configure an approved provider."
         )
 
 
@@ -34,9 +38,11 @@ class MockProvider:
         )
 
 
-def get_provider() -> AIProvider:
+def get_provider(provider_name: str | None = None) -> AIProvider:
     """Select a provider without reading or logging secret values."""
-    provider_name = load_app_settings().ai_provider.lower()
-    if provider_name == "mock":
+    selected = (provider_name or load_app_settings().ai_provider).strip().lower()
+    if selected in {"mock", "local"}:
         return MockProvider()
+    if selected in {"", "unavailable", "none"}:
+        return UnavailableProvider()
     return UnavailableProvider()
