@@ -7,9 +7,11 @@ from marketplace_manager.ui.components.navigation import NavigationSidebar
 from marketplace_manager.ui.pages.common import PlaceholderPage
 from marketplace_manager.ui.pages.dashboard import DashboardPage
 from marketplace_manager.ui.pages.products_page import ProductsPage
+from marketplace_manager.ui.pages.listings_page import ListingsPage
 from marketplace_manager.ui.pages.images_page import ImagesPage
 from marketplace_manager.ui.pages.ai_writer_page import AIWriterPage
 from marketplace_manager.ui.pages.scheduler_page import SchedulerPage
+from marketplace_manager.ui.pages.settings_page import SettingsPage
 
 
 class MainWindow(QMainWindow):
@@ -29,10 +31,14 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout(root); layout.setContentsMargins(0, 0, 0, 0); layout.setSpacing(0)
         self.sidebar = NavigationSidebar(self.PAGE_NAMES, __version__)
         self.sidebar.page_requested.connect(self.show_page)
-        self.pages = QStackedWidget(); self.pages.addWidget(DashboardPage()); self.pages.addWidget(ProductsPage()); self.pages.addWidget(PlaceholderPage("Listings", "Your marketplace listings will appear here.")); self.pages.addWidget(ImagesPage()); self.pages.addWidget(AIWriterPage()); self.pages.addWidget(SchedulerPage())
-        descriptions = ("Local preferences and workspace information appear here.",)
-        for title, description in zip(self.PAGE_NAMES[6:], descriptions):
-            self.pages.addWidget(PlaceholderPage(title, description))
+        self.pages = QStackedWidget()
+        self.pages.addWidget(DashboardPage())
+        self.pages.addWidget(ProductsPage())
+        self.pages.addWidget(ListingsPage())
+        self.pages.addWidget(ImagesPage())
+        self.pages.addWidget(AIWriterPage())
+        self.pages.addWidget(SchedulerPage())
+        self.pages.addWidget(SettingsPage())
         layout.addWidget(self.sidebar); layout.addWidget(self.pages, 1); self.setCentralWidget(root)
         status = QStatusBar(); status.showMessage("Ready")
         version = QLabel(f"Version {__version__}"); status.addPermanentWidget(version); self.setStatusBar(status)
