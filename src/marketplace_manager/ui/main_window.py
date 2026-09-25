@@ -14,11 +14,12 @@ from marketplace_manager.ui.pages.scheduler_page import SchedulerPage
 from marketplace_manager.ui.pages.settings_page import SettingsPage
 from marketplace_manager.ui.pages.imports_page import ImportsPage
 from marketplace_manager.ui.pages.connections_page import ConnectionsPage
+from marketplace_manager.ui.pages.activity_logs_page import ActivityLogsPage
 
 
 class MainWindow(QMainWindow):
     """Professional application shell for current and future modules."""
-    PAGE_NAMES = ("Dashboard", "Products", "Listings", "Images", "AI Writer", "Scheduler", "Settings", "CSV / Excel", "Connections")
+    PAGE_NAMES = ("Dashboard", "Products", "Listings", "Images", "AI Writer", "Scheduler", "Settings", "CSV / Excel", "Connections", "Activity Logs")
 
     def __init__(self) -> None:
         super().__init__()
@@ -40,9 +41,12 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(ImagesPage())
         self.pages.addWidget(AIWriterPage())
         self.pages.addWidget(SchedulerPage())
-        self.pages.addWidget(SettingsPage())
+        settings_page = SettingsPage()
+        settings_page.connections_requested.connect(lambda: self.show_page(self.PAGE_NAMES.index("Connections")))
+        self.pages.addWidget(settings_page)
         self.pages.addWidget(ImportsPage())
         self.pages.addWidget(ConnectionsPage())
+        self.pages.addWidget(ActivityLogsPage())
         layout.addWidget(self.sidebar); layout.addWidget(self.pages, 1); self.setCentralWidget(root)
         status = QStatusBar(); status.showMessage("Ready")
         version = QLabel(f"Version {__version__}"); status.addPermanentWidget(version); self.setStatusBar(status)
