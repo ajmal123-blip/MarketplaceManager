@@ -28,7 +28,7 @@ VALID_STARTUP_BEHAVIORS = ("Normal", "Start minimized")
 VALID_LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
 
 DEFAULT_APP_SETTINGS = {
-    "workspace_name": "Marketplace Manager",
+    "workspace_name": "FBauto Bot 33",
     "default_currency": "USD",
     "default_location": "Local workspace",
     "default_product_status": "draft",
@@ -50,7 +50,7 @@ DEFAULT_APP_SETTINGS = {
 class AppSettings:
     """Local preferences; secret values are intentionally not represented."""
 
-    workspace_name: str = "Marketplace Manager"
+    workspace_name: str = "FBauto Bot 33"
     default_currency: str = "USD"
     default_location: str = "Local workspace"
     default_product_status: str = "draft"

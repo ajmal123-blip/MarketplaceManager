@@ -11,7 +11,7 @@ class DashboardPage(QWidget):
         self._connection = initialize_database()
         self._repository = ProductRepository(self._connection)
         layout = QVBoxLayout(self); layout.setContentsMargins(36, 32, 36, 32); layout.setSpacing(24)
-        page_header(layout, "Dashboard", "Your Marketplace Manager workspace at a glance.")
+        page_header(layout, "Dashboard", "Your FBauto Bot 33 workspace at a glance.")
         grid = QGridLayout(); grid.setSpacing(16)
         counts = self._repository.counts_by_status()
         cards = (

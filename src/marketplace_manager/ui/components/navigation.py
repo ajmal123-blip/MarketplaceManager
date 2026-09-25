@@ -11,7 +11,7 @@ class NavigationSidebar(QWidget):
         self.setObjectName("sidebar")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 24, 18, 18)
-        brand = QLabel("Marketplace Manager")
+        brand = QLabel("FBauto Bot 33")
         brand.setObjectName("brandName")
         tag = QLabel(f"DESKTOP APP • v{version}")
         tag.setObjectName("brandTagline")
