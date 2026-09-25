@@ -42,10 +42,12 @@ class ActivityLogService:
             return []
         entries = [entry for line in lines if (entry := self.parse_line(line)) is not None]
         search_term = search.strip().lower()
+        selected_level = level.strip().upper() if level.strip().lower() != "all" else "All"
+        selected_component = component.strip() if component.strip().lower() != "all" else "All"
         return [
             entry for entry in entries
-            if (level == "All" or entry.level == level)
-            and (component == "All" or entry.component == component)
+            if (selected_level == "All" or entry.level == selected_level)
+            and (selected_component == "All" or entry.component == selected_component)
             and (not search_term or search_term in " ".join((entry.component, entry.message, entry.level)).lower())
         ]
 

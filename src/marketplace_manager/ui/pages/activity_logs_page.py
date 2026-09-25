@@ -36,13 +36,13 @@ class ActivityLogsPage(QWidget):
         self.level_filter.addItems(["All", *LOG_LEVELS])
         self.component_filter = QComboBox()
         self.component_filter.addItem("All")
-        refresh = QPushButton("Refresh")
-        clear = QPushButton("Clear Logs")
+        self.refresh_button = QPushButton("Refresh")
+        self.clear_button = QPushButton("Clear Logs")
         controls.addWidget(self.search, 1)
         controls.addWidget(self.level_filter)
         controls.addWidget(self.component_filter)
-        controls.addWidget(refresh)
-        controls.addWidget(clear)
+        controls.addWidget(self.refresh_button)
+        controls.addWidget(self.clear_button)
         layout.addLayout(controls)
 
         self.status_label = QLabel("No log entries loaded.")
@@ -58,8 +58,8 @@ class ActivityLogsPage(QWidget):
         self.search.textChanged.connect(self.refresh)
         self.level_filter.currentTextChanged.connect(self.refresh)
         self.component_filter.currentTextChanged.connect(self.refresh)
-        refresh.clicked.connect(self.refresh)
-        clear.clicked.connect(self.clear_logs)
+        self.refresh_button.clicked.connect(self.refresh)
+        self.clear_button.clicked.connect(self.clear_logs)
         self.refresh()
 
     def refresh(self) -> None:
