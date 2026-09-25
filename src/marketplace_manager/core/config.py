@@ -2,14 +2,26 @@
 
 import json
 import os
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = PROJECT_ROOT / "data"
-LOG_DIR = PROJECT_ROOT / "logs"
+
+
+def _runtime_root() -> Path:
+    """Use a writable per-user root for frozen builds and the repo during development."""
+    if getattr(sys, "frozen", False):
+        local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        return local_app_data / "FBauto Bot 33"
+    return PROJECT_ROOT
+
+
+RUNTIME_ROOT = _runtime_root()
+DATA_DIR = RUNTIME_ROOT / "data"
+LOG_DIR = RUNTIME_ROOT / "logs"
 SETTINGS_PATH = DATA_DIR / "app_settings.json"
 THEME_NAME = "FBauto Blue/Grey/Purple"
 VALID_STARTUP_BEHAVIORS = ("Normal", "Start minimized")

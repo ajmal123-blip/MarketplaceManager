@@ -15,11 +15,11 @@ def main() -> int:
 
     try:
         app = QApplication(sys.argv)
-        app.setApplicationName("Marketplace Manager")
+        app.setApplicationName("FBauto Bot 33")
         window = MainWindow()
         window.show()
         return app.exec()
     except Exception as error:
         logging.getLogger(__name__).exception("Application could not start")
-        QMessageBox.critical(None, "Marketplace Manager", f"The application could not start:\n{error}")
+        QMessageBox.critical(None, "FBauto Bot 33", f"The application could not start:\n{error}")
         return 1

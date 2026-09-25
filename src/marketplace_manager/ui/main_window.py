@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle(f"Marketplace Manager {__version__}")
+        self.setWindowTitle(f"FBauto Bot 33 {__version__}")
         self.setMinimumSize(QSize(900, 600))
         self.resize(1280, 800)
         self._build_interface()
